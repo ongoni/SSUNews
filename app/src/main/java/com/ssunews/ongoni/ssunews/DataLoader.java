@@ -97,6 +97,14 @@ public class DataLoader extends AsyncTaskLoader<List<Article>> {
             e.printStackTrace();
         }
 
+        for (int i = 0; i + 1 < netData.size();) {
+            if (netData.get(i).guid == netData.get(i + 1).guid) {
+                netData.remove(i);
+            } else {
+                i++;
+            }
+        }
+
         SQLiteDatabase db = new SSUDbHelper(getContext()).getWritableDatabase();
 
         db.beginTransaction();
