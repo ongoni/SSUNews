@@ -73,7 +73,7 @@ public class SSUNewsXmlParser {
                 skip(parser);
             }
         }
-        return new Article(title, description, pubDate, link, Integer.parseInt(guid));
+        return new Article(title, description, pubDate, link, guid);
     }
 
     private String readTitle(XmlPullParser parser) throws XmlPullParserException, IOException {

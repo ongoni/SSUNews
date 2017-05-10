@@ -16,12 +16,13 @@ public class SSUDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String sql = "CREATE TABLE " + SSUDbContract.TABLE_NAME + "("
-                + SSUDbContract._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + SSUDbContract.COLUMN_TITLE + " TEXT NOT NULL, "
-                + SSUDbContract.COLUMN_DESCRIPTION +  " TEXT, "
-                + SSUDbContract.COLUMN_LINK + " TEXT NOT NULL, "
-                + SSUDbContract.COLUMN_PUBDATE + " DATETIME "
-                + ")";
+                + SSUDbContract._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + SSUDbContract.COLUMN_TITLE + " TEXT NOT NULL,"
+                + SSUDbContract.COLUMN_DESCRIPTION + " TEXT,"
+                + SSUDbContract.COLUMN_LINK + " TEXT NOT NULL,"
+                + SSUDbContract.COLUMN_PUBDATE + " DATETIME,"
+                + SSUDbContract.COLUMN_GUID + " TEXT"
+                + ");";
         db.execSQL(sql);
     }
 

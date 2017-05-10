@@ -6,9 +6,9 @@ public class Article {
     public String description;
     public String link;
     public String pubDate;
-    public int guid;
+    public String guid;
 
-    public Article (String Title, String Description, String PubDate, String Link, int Guid) {
+    public Article (String Title, String Description, String PubDate, String Link, String Guid) {
         this.title = Title;
         this.description = Description;
         this.pubDate = PubDate;

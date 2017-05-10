@@ -7,9 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.ssunews.ongoni.ssunews.SSUDbContract;
-import com.ssunews.ongoni.ssunews.SSUDbHelper;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -98,7 +95,7 @@ public class DataLoader extends AsyncTaskLoader<List<Article>> {
         }
 
         for (int i = 0; i + 1 < netData.size();) {
-            if (netData.get(i).guid == netData.get(i + 1).guid) {
+            if (netData.get(i).guid.equals(netData.get(i + 1).guid)) {
                 netData.remove(i);
             } else {
                 i++;
@@ -116,6 +113,7 @@ public class DataLoader extends AsyncTaskLoader<List<Article>> {
                     cv.put(SSUDbContract.COLUMN_DESCRIPTION, article.description);
                     cv.put(SSUDbContract.COLUMN_PUBDATE, article.pubDate);
                     cv.put(SSUDbContract.COLUMN_LINK, article.link);
+                    cv.put(SSUDbContract.COLUMN_GUID, article.guid);
                     db.insert(SSUDbContract.TABLE_NAME, null, cv);
                 }
             }
@@ -124,11 +122,12 @@ public class DataLoader extends AsyncTaskLoader<List<Article>> {
             db.endTransaction();
         }
 
-        Cursor cursor = db.query(SSUDbContract.TABLE_NAME, new String[] {
+        Cursor cursor = db.query(SSUDbContract.TABLE_NAME, new String[]{
                 SSUDbContract.COLUMN_TITLE,
                 SSUDbContract.COLUMN_DESCRIPTION,
+                SSUDbContract.COLUMN_PUBDATE,
                 SSUDbContract.COLUMN_LINK,
-                SSUDbContract.COLUMN_PUBDATE
+                SSUDbContract.COLUMN_GUID
         }, null, null, null, null, SSUDbContract.COLUMN_PUBDATE);
 
         this.data = new ArrayList<Article>();
@@ -140,7 +139,7 @@ public class DataLoader extends AsyncTaskLoader<List<Article>> {
                         cursor.getString(1),
                         cursor.getString(2),
                         cursor.getString(3),
-                        cursor.getInt(4)
+                        cursor.getString(4)
                 );
                 data.add(article);
             }

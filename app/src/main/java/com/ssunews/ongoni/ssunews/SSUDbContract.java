@@ -10,6 +10,7 @@ public class SSUDbContract implements BaseColumns {
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_PUBDATE = "pub_date";
     public static final String COLUMN_LINK = "link";
+    public static final String COLUMN_GUID = "guid";
 
     private SSUDbContract() {}
 }

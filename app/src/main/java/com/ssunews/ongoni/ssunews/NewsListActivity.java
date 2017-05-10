@@ -1,7 +1,6 @@
 package com.ssunews.ongoni.ssunews;
 
 import android.app.Activity;
-import android.app.usage.ConfigurationStats;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +14,7 @@ public class NewsListActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_http_fetcher);
+        setContentView(R.layout.activity_news_list);
     }
 
     @Override
