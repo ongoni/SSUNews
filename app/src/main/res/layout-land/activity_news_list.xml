@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/container"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <fragment
+        android:id="@+id/news_list_fragment"
+        android:name="com.ssunews.ongoni.ssunews.NewsListFragment"
+        android:layout_width="256dp"
+        android:layout_height="match_parent"/>
+
+    <fragment
+        android:id="@+id/preview_fragment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:name="com.ssunews.ongoni.ssunews.PreviewFragment"/>
+
+</LinearLayout>

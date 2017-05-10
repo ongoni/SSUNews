@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SSU News</string>
+    <string name="header">Saratov State University News</string>
+    <string name="news1text">Саратовский университет впервые вошёл в рейтинг RUR</string>
+    <string name="news2text">Ректор А.Н. Чумаченко поздавил СГУ с Днём космонавтики</string>
+    <string name="news3text">В СГУ прошла Всемирная акция «Тотальный диктант»</string>
+    <string name="refresh">Refresh</string>
+</resources>
