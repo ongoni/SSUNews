@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.ssunews.ongoni.ssunews.db.SSUDbContract;
 import com.ssunews.ongoni.ssunews.db.SSUDbHelper;
+import com.ssunews.ongoni.ssunews.service.RefreshService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,28 +36,8 @@ public class DataLoader extends AsyncTaskLoader<List<Article>> {
 
     @Override
     public List<Article> loadInBackground() {
-        Log.d(LOG_TAG, "loadInBackground");
 
-        List<Article> netData = new RSSParser().parse("http://sgu.ru/news.xml");
-        SQLiteDatabase db = new SSUDbHelper(getContext()).getWritableDatabase();
-
-        db.beginTransaction();
-        try {
-            if (netData != null) {
-                for (Article article : netData) {
-                    ContentValues cv = new ContentValues();
-                    cv.put(SSUDbContract.COLUMN_GUID, article.guid);
-                    cv.put(SSUDbContract.COLUMN_TITLE, article.title);
-                    cv.put(SSUDbContract.COLUMN_DESCRIPTION, article.description);
-                    cv.put(SSUDbContract.COLUMN_PUBDATE, article.pubDate);
-                    cv.put(SSUDbContract.COLUMN_LINK, article.link);
-                    db.insert(SSUDbContract.TABLE_NAME, null, cv);
-                }
-            }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
+        SQLiteDatabase db = new SSUDbHelper(getContext()).getReadableDatabase();
 
         Cursor cursor = db.query(SSUDbContract.TABLE_NAME, new String[]{
                 SSUDbContract.COLUMN_TITLE,
@@ -78,8 +59,9 @@ public class DataLoader extends AsyncTaskLoader<List<Article>> {
             }
         } finally {
             cursor.close();
+            db.close();
         }
-
+        Log.d(LOG_TAG, "loadInBackground finished");
         return data;
     }
 

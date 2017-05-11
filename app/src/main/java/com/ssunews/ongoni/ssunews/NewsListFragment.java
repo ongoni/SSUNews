@@ -2,6 +2,7 @@ package com.ssunews.ongoni.ssunews;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+
+import com.ssunews.ongoni.ssunews.service.RefreshService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +57,9 @@ public class NewsListFragment extends Fragment
             @Override
             public void onClick(View v) {
                 getLoaderManager().restartLoader(0, null, NewsListFragment.this);
+
+                Intent serviceIntent = new Intent(getActivity(), RefreshService.class);
+                getActivity().startService(serviceIntent);
             }
         });
 

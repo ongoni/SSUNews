@@ -60,7 +60,6 @@ public class RSSParser {
                 i++;
             }
         }
-
         return data;
     }
 }
