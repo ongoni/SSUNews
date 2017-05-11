@@ -11,6 +11,7 @@ import android.webkit.WebView;
 public class PreviewFragment extends Fragment {
 
     private static final String LOG_TAG = "PreviewFragment";
+
     private WebView webView;
 
     public PreviewFragment() {

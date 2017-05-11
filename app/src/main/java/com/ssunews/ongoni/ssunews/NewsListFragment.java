@@ -2,7 +2,10 @@ package com.ssunews.ongoni.ssunews;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.ssunews.ongoni.ssunews.service.RefreshService;
 
@@ -26,8 +30,21 @@ public class NewsListFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<List<Article>> {
 
     private static final String LOG_TAG = "NewsListFragment";
+
+    private final BroadcastReceiver refreshBroadcastReciever = new RefreshBroadcastReciever();
     private final List<Article> data = new ArrayList<>();
+
     private NewsItemAdapter adapter = null;
+
+    private final class RefreshBroadcastReciever extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (isResumed()) {
+                getActivity().getLoaderManager().restartLoader(0, null, NewsListFragment.this);
+                Toast.makeText(getActivity(), "Data refreshed", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     public interface Listener {
         void onArticleClicked(Article article);
@@ -56,8 +73,6 @@ public class NewsListFragment extends Fragment
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getLoaderManager().restartLoader(0, null, NewsListFragment.this);
-
                 Intent serviceIntent = new Intent(getActivity(), RefreshService.class);
                 getActivity().startService(serviceIntent);
             }
@@ -72,6 +87,18 @@ public class NewsListFragment extends Fragment
         super.onCreate(savedInstanceState);
         this.adapter = new NewsItemAdapter(getActivity(), data);
         getLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter(RefreshService.REFRESH_ACTION);
+        getActivity().registerReceiver(refreshBroadcastReciever, intentFilter);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 
     @Override

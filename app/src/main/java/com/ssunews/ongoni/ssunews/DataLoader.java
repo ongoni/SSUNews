@@ -17,6 +17,7 @@ import java.util.List;
 public class DataLoader extends AsyncTaskLoader<List<Article>> {
 
     private static final String LOG_TAG = "DataLoader";
+
     private List<Article> data;
 
     public DataLoader(Context context) {
