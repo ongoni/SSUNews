@@ -2,20 +2,23 @@ package com.ssunews.ongoni.ssunews;
 
 import android.util.Log;
 import android.util.Xml;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-public class SSUNewsXmlParser {
+public class NewsXmlParser {
 
     private static final String LOG_TAG = "SSUNewsParser";
     private static final String namespaces = null;
 
-    public ArrayList<Article> parse(String response) throws XmlPullParserException, IOException {
+    public List<Article> parse(String response) throws XmlPullParserException, IOException {
         Log.d(LOG_TAG, "parse");
         XmlPullParser parser = Xml.newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -25,8 +28,8 @@ public class SSUNewsXmlParser {
         return readChannel(parser);
     }
 
-    private ArrayList readChannel(XmlPullParser parser) throws XmlPullParserException, IOException {
-        ArrayList<Article> articles = new ArrayList<>();
+    private List readChannel(XmlPullParser parser) throws XmlPullParserException, IOException {
+        List<Article> articles = new ArrayList<>();
         parser.nextTag();
         parser.require(XmlPullParser.START_TAG, namespaces, "channel");
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -48,11 +51,7 @@ public class SSUNewsXmlParser {
 
         parser.require(XmlPullParser.START_TAG, namespaces, "item");
 
-        String title = "";
-        String description = "";
-        String pubDate = "";
-        String link = "";
-        String guid = "";
+        Article article = new Article();
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -60,20 +59,20 @@ public class SSUNewsXmlParser {
             }
             String name = parser.getName();
             if (name.equals("title")) {
-                title = readTitle(parser);
+                article.title = readTitle(parser);
             } else if (name.equals("description")) {
-                description = readDescription(parser);
+                article.description = readDescription(parser);
             } else if (name.equals("pubDate")) {
-                pubDate = readPubDate(parser);
+                article.pubDate = readPubDate(parser);
             } else if (name.equals("link")) {
-                link = readLink(parser);
+                article.link = readLink(parser);
             } else if (name.equals("guid")) {
-                guid = readGuid(parser);
+                article.guid = Long.parseLong(readGuid(parser));
             } else {
                 skip(parser);
             }
         }
-        return new Article(title, description, pubDate, link, guid);
+        return article;
     }
 
     private String readTitle(XmlPullParser parser) throws XmlPullParserException, IOException {
@@ -85,9 +84,9 @@ public class SSUNewsXmlParser {
 
     private String readDescription(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, namespaces, "description");
-        String title = readText(parser);
+        String description = readText(parser);
         parser.require(XmlPullParser.END_TAG, namespaces, "description");
-        return title;
+        return description;
     }
 
     private String readPubDate(XmlPullParser parser) throws XmlPullParserException, IOException {

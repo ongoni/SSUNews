@@ -6,13 +6,13 @@ public class Article {
     public String description;
     public String link;
     public String pubDate;
-    public String guid;
+    public long guid;
 
-    public Article (String Title, String Description, String PubDate, String Link, String Guid) {
-        this.title = Title;
-        this.description = Description;
-        this.pubDate = PubDate;
-        this.link = Link;
-        this.guid = Guid;
-    }
+//    public Article (String Title, String Description, String PubDate, String Link, long Guid) {
+//        this.title = Title;
+//        this.description = Description;
+//        this.pubDate = PubDate;
+//        this.link = Link;
+//        this.guid = Guid;
+//    }
 }

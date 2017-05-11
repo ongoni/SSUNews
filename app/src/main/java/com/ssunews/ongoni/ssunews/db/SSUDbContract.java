@@ -1,4 +1,4 @@
-package com.ssunews.ongoni.ssunews;
+package com.ssunews.ongoni.ssunews.db;
 
 import android.provider.BaseColumns;
 

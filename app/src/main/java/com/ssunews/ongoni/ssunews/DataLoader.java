@@ -7,11 +7,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import com.ssunews.ongoni.ssunews.db.SSUDbContract;
+import com.ssunews.ongoni.ssunews.db.SSUDbHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,70 +36,8 @@ public class DataLoader extends AsyncTaskLoader<List<Article>> {
     @Override
     public List<Article> loadInBackground() {
         Log.d(LOG_TAG, "loadInBackground");
-        String res = null;
-        try {
-            URL url = new URL("http://sgu.ru/news.xml");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-            try {
-                InputStream istream = conn.getInputStream();
-                ByteArrayOutputStream ostream = new ByteArrayOutputStream();
-
-                try {
-                    byte[] buf = new byte[32 * 1024];
-                    while (true) {
-                        int bytesRead = istream.read(buf);
-                        if (bytesRead < 0) {
-                            break;
-                        }
-                        ostream.write(buf, 0, bytesRead);
-                    }
-                    res = ostream.toString("UTF-8");
-                } finally {
-                    istream.close();
-                    ostream.close();
-                }
-
-            } finally {
-                conn.disconnect();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        SSUNewsXmlParser parser = new SSUNewsXmlParser();
-
-        if (res.startsWith("\n")) {
-            res = res.substring(1);
-        }
-        if (res.startsWith("\uFEFF")) {
-            res = res.substring(1);
-        }
-
-        List<Article> netData = null;
-
-        try {
-            InputStream in = new ByteArrayInputStream(res.getBytes("UTF-8"));
-            try {
-                netData = parser.parse(res);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                in.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        for (int i = 0; i + 1 < netData.size();) {
-            if (netData.get(i).guid.equals(netData.get(i + 1).guid)) {
-                netData.remove(i);
-            } else {
-                i++;
-            }
-        }
-
+        List<Article> netData = new RSSParser().parse("http://sgu.ru/news.xml");
         SQLiteDatabase db = new SSUDbHelper(getContext()).getWritableDatabase();
 
         db.beginTransaction();
@@ -109,11 +45,11 @@ public class DataLoader extends AsyncTaskLoader<List<Article>> {
             if (netData != null) {
                 for (Article article : netData) {
                     ContentValues cv = new ContentValues();
+                    cv.put(SSUDbContract.COLUMN_GUID, article.guid);
                     cv.put(SSUDbContract.COLUMN_TITLE, article.title);
                     cv.put(SSUDbContract.COLUMN_DESCRIPTION, article.description);
                     cv.put(SSUDbContract.COLUMN_PUBDATE, article.pubDate);
                     cv.put(SSUDbContract.COLUMN_LINK, article.link);
-                    cv.put(SSUDbContract.COLUMN_GUID, article.guid);
                     db.insert(SSUDbContract.TABLE_NAME, null, cv);
                 }
             }
@@ -126,21 +62,18 @@ public class DataLoader extends AsyncTaskLoader<List<Article>> {
                 SSUDbContract.COLUMN_TITLE,
                 SSUDbContract.COLUMN_DESCRIPTION,
                 SSUDbContract.COLUMN_PUBDATE,
-                SSUDbContract.COLUMN_LINK,
-                SSUDbContract.COLUMN_GUID
-        }, null, null, null, null, SSUDbContract.COLUMN_PUBDATE);
+                SSUDbContract.COLUMN_LINK
+        }, null, null, null, null, SSUDbContract.COLUMN_PUBDATE + " DESC");
 
         this.data = new ArrayList<Article>();
 
         try {
             while (cursor.moveToNext()) {
-                Article article = new Article(
-                        cursor.getString(0),
-                        cursor.getString(1),
-                        cursor.getString(2),
-                        cursor.getString(3),
-                        cursor.getString(4)
-                );
+                Article article = new Article();
+                article.title = cursor.getString(0);
+                article.description = cursor.getString(1);
+                article.pubDate = cursor.getString(2);
+                article.link = cursor.getString(3);
                 data.add(article);
             }
         } finally {
