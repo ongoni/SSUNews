@@ -85,7 +85,7 @@ public class NewsListFragment extends Fragment
             @Override
             public void onClick(View v) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.container, new PreferencesFragment())
+                        .add(R.id.container, new PreferencesFragment())
                         .addToBackStack(null)
                         .commit();
             }

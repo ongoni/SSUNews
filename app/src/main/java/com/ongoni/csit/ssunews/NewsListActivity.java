@@ -23,7 +23,7 @@ public class NewsListActivity extends Activity
             PreviewFragment fragment = new PreviewFragment();
             fragment.getArguments().putString("url", article.link);
             getFragmentManager().beginTransaction()
-                    .replace(R.id.container, fragment)
+                    .add(R.id.container, fragment)
                     .addToBackStack(null)
                     .commit();
         } else  {
