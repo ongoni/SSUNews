@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/news_list_fragment"
-        android:name="com.ssunews.ongoni.ssunews.NewsListFragment"
+        android:name="com.ongoni.csit.ssunews.NewsListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

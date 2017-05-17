@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+    <PreferenceCategory
+        android:title="Notifications">
+
+        <CheckBoxPreference
+            android:key="notifications"
+            android:title="@string/notifications_title"
+            android:summary="@string/notifications_summary"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Update">
+
+        <CheckBoxPreference
+            android:key="wifi_only"
+            android:title="@string/wifi_only_title"
+            android:summary="@string/wifi_only_summary"/>
+
+        <ListPreference
+            android:entries="@array/entries"
+            android:entryValues="@array/entryValues"
+            android:key="periodic_update"
+            android:summary="@string/periodic_update_summary"
+            android:title="@string/periodic_update_title"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

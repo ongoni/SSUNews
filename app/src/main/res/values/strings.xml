@@ -1,8 +1,28 @@
 <resources>
     <string name="app_name">SSU News</string>
     <string name="header">Saratov State University News</string>
-    <string name="news1text">Саратовский университет впервые вошёл в рейтинг RUR</string>
-    <string name="news2text">Ректор А.Н. Чумаченко поздавил СГУ с Днём космонавтики</string>
-    <string name="news3text">В СГУ прошла Всемирная акция «Тотальный диктант»</string>
     <string name="refresh">Refresh</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="wifi_only_title">Wi-Fi only</string>
+    <string name="periodic_update_title">Periodic update</string>
+    <string name="notifications_summary">Enable/Disable notifications</string>
+    <string name="wifi_only_summary">Update only via Wi-Fi</string>
+    <string name="periodic_update_summary">Define autoupdate interval or disable it</string>
+    <string name="preferences">Preferences</string>
+    <string-array name="entries">
+        <item>1 minute</item>
+        <item>10 minutes</item>
+        <item>30 minute</item>
+        <item>1 hour</item>
+        <item>1 day</item>
+        <item>Disabled</item>
+    </string-array>
+    <string-array name="entryValues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
 </resources>

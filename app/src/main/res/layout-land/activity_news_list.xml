@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/news_list_fragment"
-        android:name="com.ssunews.ongoni.ssunews.NewsListFragment"
+        android:name="com.ongoni.csit.ssunews.NewsListFragment"
         android:layout_width="256dp"
         android:layout_height="match_parent"/>
 
@@ -17,6 +17,6 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:name="com.ssunews.ongoni.ssunews.PreviewFragment"/>
+        android:name="com.ongoni.csit.ssunews.PreviewFragment"/>
 
 </LinearLayout>

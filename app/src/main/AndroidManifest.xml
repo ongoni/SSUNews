@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ssunews.ongoni.ssunews">
+    package="com.ongoni.csit.ssunews">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -11,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".NewsListActivity">
+        <activity android:name="com.ongoni.csit.ssunews.NewsListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,7 +20,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.RefreshService"
+        <service android:name="com.ongoni.csit.ssunews.service.RefreshService"
             android:exported="false"
             android:enabled="true" />
 
