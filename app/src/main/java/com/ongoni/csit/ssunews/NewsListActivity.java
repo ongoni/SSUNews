@@ -17,6 +17,10 @@ public class NewsListActivity extends AppCompatActivity
         Log.d(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_list);
+        findViewById(R.id.articlesList)
+                .getRootView()
+                .setBackgroundColor(getResources()
+                        .getColor(android.R.color.white));
     }
 
     @Override
@@ -24,7 +28,7 @@ public class NewsListActivity extends AppCompatActivity
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             PreviewFragment fragment = new PreviewFragment();
             fragment.getArguments().putString("url", article.link);
-            getSupportLoaderManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, fragment)
                     .addToBackStack(null)
                     .commit();

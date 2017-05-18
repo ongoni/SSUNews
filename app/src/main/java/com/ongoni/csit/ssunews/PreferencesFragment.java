@@ -17,7 +17,7 @@ public class PreferencesFragment extends Fragment {
 
     private Switch notifications;
     private Switch wifiOnly;
-    private Switch periodicUpdate;
+    private Switch periodicUpdates;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -28,7 +28,7 @@ public class PreferencesFragment extends Fragment {
 
         this.notifications = (Switch) v.findViewById(R.id.notifications);
         this.wifiOnly = (Switch) v.findViewById(R.id.wifi_only);
-        this.periodicUpdate = (Switch) v.findViewById(R.id.periodic_updates);
+        this.periodicUpdates = (Switch) v.findViewById(R.id.periodic_updates);
         init();
 
         return v;
@@ -53,8 +53,8 @@ public class PreferencesFragment extends Fragment {
             }
         });
 
-        periodicUpdate.setChecked(prefs.getBoolean("periodic_update", true));
-        periodicUpdate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        periodicUpdates.setChecked(prefs.getBoolean("periodic_updates", true));
+        periodicUpdates.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 onPeriodicUpdateSwitched(isChecked);
@@ -79,7 +79,7 @@ public class PreferencesFragment extends Fragment {
     private void onPeriodicUpdateSwitched(boolean checked) {
         getActivity().getPreferences(Context.MODE_PRIVATE)
                 .edit()
-                .putBoolean("periodic_update", checked)
+                .putBoolean("periodic_updates", checked)
                 .apply();
     }
 }

@@ -29,8 +29,8 @@ public class RefreshService extends Service {
 
     public static final String ACTION_REFRESH = "com.ongoni.csit.ssunews.service" +
             ".RefreshService.ACTION_REFRESH";
-    public static final String NO_INTERNET = "com.ongoni.csit.ssunews.service" +
-            ".RefreshService.NO_INTERNET";
+    public static final String ACTION_NO_INTERNET = "com.ongoni.csit.ssunews.service" +
+            ".RefreshService.ACTION_NO_INTERNET";
     private static final String LOG_TAG = "RefreshService";
     private static final String url = "http://sgu.ru/news.xml";
 
@@ -40,17 +40,15 @@ public class RefreshService extends Service {
     private final Runnable refreshRunnable = new Runnable() {
         @Override
         public void run() {
-            while (!Thread.interrupted()) {
-                boolean loadAllowed = isPeriodicUpdatesEnabled()
-                        && !isWifiOnly()
-                        && isWifiConnected();
-                if (loadAllowed) {
-                    loadData();
-                }  else {
-                    Intent noInternetIntent = new Intent();
-                    noInternetIntent.setAction(NO_INTERNET);
-                    sendBroadcast(noInternetIntent);
-                }
+            boolean loadAllowed = isPeriodicUpdatesEnabled()
+                    && (!isWifiOnly()
+                    || isWifiConnected());
+            if (loadAllowed) {
+                loadData();
+            }  else {
+                Intent noInternetIntent = new Intent();
+                noInternetIntent.setAction(ACTION_NO_INTERNET);
+                sendBroadcast(noInternetIntent);
             }
         }
     };
@@ -158,7 +156,7 @@ public class RefreshService extends Service {
                     .setContentText(newNewsCounter + " news added")
                     .setContentIntent(notificationIntent)
                     .setAutoCancel(true)
-                    .setSmallIcon(R.drawable.ssu_logo_small)
+                    .setSmallIcon(R.mipmap.ssu)
                     .build();
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             nm.notify(1, notification);
@@ -171,7 +169,7 @@ public class RefreshService extends Service {
                     .setContentTitle("SSU RSS Data is refreshing")
                     .setContentText("Wait until complete")
                     .setOngoing(true)
-                    .setSmallIcon(R.drawable.ssu_logo_small)
+                    .setSmallIcon(R.mipmap.ssu)
                     .build();
             startForeground(1, notification);
         }
@@ -184,7 +182,7 @@ public class RefreshService extends Service {
     private boolean isNotificationsEnabled() {
         SharedPreferences prefs = getSharedPreferences(
                 NewsListActivity.class.getSimpleName(), MODE_PRIVATE);
-        return prefs.getBoolean("notifcations", true);
+        return prefs.getBoolean("notifications", true);
     }
 
     private boolean isWifiOnly() {

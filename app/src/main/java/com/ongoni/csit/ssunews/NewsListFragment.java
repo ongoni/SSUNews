@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -28,23 +27,28 @@ public class NewsListFragment extends Fragment
 
     private static final String LOG_TAG = "NewsListFragment";
 
-    private final BroadcastReceiver refreshBroadcastReceiver = new RefreshBroadcastReceiver();
+    private final BroadcastReceiver refreshBroadcastReceiver = new LocalBroadcastReceiver();
     private final List<Article> data = new ArrayList<>();
     private SwipeRefreshLayout swipeRefreshLayout = null;
 
     private NewsItemAdapter adapter = null;
 
-    private final class RefreshBroadcastReceiver extends BroadcastReceiver {
+    private final class LocalBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (isResumed()) {
-                if (intent.getAction() == RefreshService.ACTION_REFRESH) {
-                    getActivity().getSupportLoaderManager().restartLoader(0, null, NewsListFragment.this);
-                    Toast.makeText(getActivity(), "Data refreshed", Toast.LENGTH_SHORT)
-                            .show();
-                } else {
-                    Toast.makeText(getActivity(), "No internet connection", Toast.LENGTH_SHORT)
-                            .show();
+                switch (intent.getAction()) {
+                    case RefreshService.ACTION_REFRESH: {
+                        getActivity().getSupportLoaderManager().restartLoader(0, null, NewsListFragment.this);
+                        Toast.makeText(getActivity(), "Data refreshed", Toast.LENGTH_SHORT)
+                                .show();
+                        break;
+                    }
+                    case RefreshService.ACTION_NO_INTERNET: {
+                        Toast.makeText(getActivity(), "No internet connection", Toast.LENGTH_SHORT)
+                                .show();
+                        break;
+                    }
                 }
             }
         }
@@ -74,7 +78,20 @@ public class NewsListFragment extends Fragment
             }
         });
 
-        this.swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_refresh);
+        this.swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_to_refresh);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Intent serviceIntent = new Intent(getActivity(), RefreshService.class);
+                getActivity().startService(serviceIntent);
+                try {
+                    Thread.sleep(1_00);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         return v;
     }
@@ -92,7 +109,7 @@ public class NewsListFragment extends Fragment
         super.onStart();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(RefreshService.ACTION_REFRESH);
-        intentFilter.addAction(RefreshService.NO_INTERNET);
+        intentFilter.addAction(RefreshService.ACTION_NO_INTERNET);
         getActivity().registerReceiver(refreshBroadcastReceiver, intentFilter);
     }
 
