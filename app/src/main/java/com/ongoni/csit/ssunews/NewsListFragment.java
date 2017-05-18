@@ -1,13 +1,14 @@
 package com.ongoni.csit.ssunews;
 
-import android.app.Fragment;
-import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,7 @@ public class NewsListFragment extends Fragment
 
     private final BroadcastReceiver refreshBroadcastReceiver = new RefreshBroadcastReceiver();
     private final List<Article> data = new ArrayList<>();
+    private SwipeRefreshLayout swipeRefreshLayout = null;
 
     private NewsItemAdapter adapter = null;
 
@@ -37,7 +39,7 @@ public class NewsListFragment extends Fragment
         public void onReceive(Context context, Intent intent) {
             if (isResumed()) {
                 if (intent.getAction() == RefreshService.ACTION_REFRESH) {
-                    getActivity().getLoaderManager().restartLoader(0, null, NewsListFragment.this);
+                    getActivity().getSupportLoaderManager().restartLoader(0, null, NewsListFragment.this);
                     Toast.makeText(getActivity(), "Data refreshed", Toast.LENGTH_SHORT)
                             .show();
                 } else {
@@ -72,21 +74,7 @@ public class NewsListFragment extends Fragment
             }
         });
 
-        Button refreshBtn = (Button) v.findViewById(R.id.refresh_btn);
-        refreshBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent serviceIntent = new Intent(getActivity(), RefreshService.class);
-                getActivity().startService(serviceIntent);
-            }
-        });
-
-        v.findViewById(R.id.preferences_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((Listener) getActivity()).onPreferenceClicked();
-            }
-        });
+        this.swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_refresh);
 
         return v;
     }

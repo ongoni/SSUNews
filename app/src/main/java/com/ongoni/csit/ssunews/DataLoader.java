@@ -1,9 +1,9 @@
 package com.ongoni.csit.ssunews;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
 import com.ongoni.csit.ssunews.db.SSUDbContract;
