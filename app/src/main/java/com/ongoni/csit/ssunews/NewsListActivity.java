@@ -33,4 +33,12 @@ public class NewsListActivity extends Activity
             f.reload();
         }
     }
+
+    @Override
+    public void onPreferenceClicked() {
+        getFragmentManager().beginTransaction()
+                .add(R.id.container, new PreferencesFragment())
+                .addToBackStack(null)
+                .commit();
+    }
 }

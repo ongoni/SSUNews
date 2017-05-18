@@ -50,6 +50,7 @@ public class NewsListFragment extends Fragment
 
     public interface Listener {
         void onArticleClicked(Article article);
+        void onPreferenceClicked();
     }
 
     @Override
@@ -80,14 +81,10 @@ public class NewsListFragment extends Fragment
             }
         });
 
-        Button preferencesBtn = (Button) v.findViewById(R.id.preferences_btn);
-        preferencesBtn.setOnClickListener(new View.OnClickListener() {
+        v.findViewById(R.id.preferences_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getFragmentManager().beginTransaction()
-                        .add(R.id.container, new PreferencesFragment())
-                        .addToBackStack(null)
-                        .commit();
+                ((Listener) getActivity()).onPreferenceClicked();
             }
         });
 
