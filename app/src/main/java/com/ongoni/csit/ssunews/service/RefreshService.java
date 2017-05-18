@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -40,7 +41,16 @@ public class RefreshService extends Service {
         @Override
         public void run() {
             while (!Thread.interrupted()) {
-                loadData();
+                boolean loadAllowed = isPeriodicUpdatesEnabled()
+                        && !isWifiOnly()
+                        && isWifiConnected();
+                if (loadAllowed) {
+                    loadData();
+                }  else {
+                    Intent noInternetIntent = new Intent();
+                    noInternetIntent.setAction(NO_INTERNET);
+                    sendBroadcast(noInternetIntent);
+                }
             }
         }
     };
@@ -48,13 +58,6 @@ public class RefreshService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    public boolean isOnline() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context
-                .CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     @Override
@@ -90,93 +93,118 @@ public class RefreshService extends Service {
 
     private void loadData() {
 
-        if (isOnline()) {
-            List<Article> netData = new RSSParser().parse(url);
+        List<Article> netData = new RSSParser().parse(url);
 
-            mainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    showInProgressNotification();
-                }
-            });
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                showInProgressNotification();
+            }
+        });
 
-            SQLiteDatabase db = new SSUDbHelper(RefreshService.this).getWritableDatabase();
-            int newNewsCounter = 0;
-            db.beginTransaction();
-            try {
-                if (netData != null) {
-                    for (Article article : netData) {
-                        ContentValues cv = new ContentValues();
-                        cv.put(SSUDbContract.COLUMN_GUID, article.guid);
-                        cv.put(SSUDbContract.COLUMN_TITLE, article.title);
-                        cv.put(SSUDbContract.COLUMN_DESCRIPTION, article.description);
-                        cv.put(SSUDbContract.COLUMN_PUBDATE, article.pubDate);
-                        cv.put(SSUDbContract.COLUMN_LINK, article.link);
-                        long insertedId = db.insertWithOnConflict(SSUDbContract.TABLE_NAME,
-                                null, cv, SQLiteDatabase.CONFLICT_IGNORE);
-                        if (insertedId == -1L) {
-                            Log.i(LOG_TAG, "skipped article guid = " + article.guid);
-                        } else {
-                            newNewsCounter++;
-                        }
+        SQLiteDatabase db = new SSUDbHelper(RefreshService.this).getWritableDatabase();
+        int newNewsCounter = 0;
+        db.beginTransaction();
+        try {
+            if (netData != null) {
+                for (Article article : netData) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(SSUDbContract.COLUMN_GUID, article.guid);
+                    cv.put(SSUDbContract.COLUMN_TITLE, article.title);
+                    cv.put(SSUDbContract.COLUMN_DESCRIPTION, article.description);
+                    cv.put(SSUDbContract.COLUMN_PUBDATE, article.pubDate);
+                    cv.put(SSUDbContract.COLUMN_LINK, article.link);
+                    long insertedId = db.insertWithOnConflict(SSUDbContract.TABLE_NAME,
+                            null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+                    if (insertedId == -1L) {
+                        Log.i(LOG_TAG, "skipped article guid = " + article.guid);
+                    } else {
+                        newNewsCounter++;
                     }
                 }
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
-                db.close();
             }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
 
-            try {
-                Thread.sleep(3_000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        try {
+            Thread.sleep(3_000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                hideInProgressNotification();
+                onPostRefresh();
             }
+        });
 
-            mainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    hideInProgressNotification();
-                    onPostRefresh();
-                }
-            });
-
-            if (newNewsCounter > 0) {
-                sendDataRefreshedNotification(newNewsCounter);
-            }
-        } else {
-            Intent noInternetIntent = new Intent();
-            noInternetIntent.setAction(NO_INTERNET);
-            sendBroadcast(noInternetIntent);
+        if (newNewsCounter > 0) {
+            sendDataRefreshedNotification(newNewsCounter);
         }
     }
 
     private void sendDataRefreshedNotification(int newNewsCounter) {
-        Intent startIntent = new Intent(this, NewsListActivity.class);
-        PendingIntent notificationIntent = PendingIntent.getActivity(
-                this, 0, startIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification notification = new Notification.Builder(this)
-                .setContentTitle("SSU News refreshed")
-                .setContentText(newNewsCounter + " news added")
-                .setContentIntent(notificationIntent)
-                .setAutoCancel(true)
-                .setSmallIcon(R.drawable.ssu_logo_small)
-                .build();
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        nm.notify(1, notification);
+        if (isNotificationsEnabled()) {
+            Intent startIntent = new Intent(this, NewsListActivity.class);
+            PendingIntent notificationIntent = PendingIntent.getActivity(
+                    this, 0, startIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Notification notification = new Notification.Builder(this)
+                    .setContentTitle("SSU News refreshed")
+                    .setContentText(newNewsCounter + " news added")
+                    .setContentIntent(notificationIntent)
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.drawable.ssu_logo_small)
+                    .build();
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            nm.notify(1, notification);
+        }
     }
 
     private void showInProgressNotification () {
-        Notification notification = new Notification.Builder(this)
-                .setContentTitle("SSU RSS Data is refreshing")
-                .setContentText("Wait until complete")
-                .setOngoing(true)
-                .setSmallIcon(R.drawable.ssu_logo_small)
-                .build();
-        startForeground(1, notification);
+        if (isNotificationsEnabled()) {
+            Notification notification = new Notification.Builder(this)
+                    .setContentTitle("SSU RSS Data is refreshing")
+                    .setContentText("Wait until complete")
+                    .setOngoing(true)
+                    .setSmallIcon(R.drawable.ssu_logo_small)
+                    .build();
+            startForeground(1, notification);
+        }
     }
 
     private void hideInProgressNotification () {
         stopForeground(false);
+    }
+
+    private boolean isNotificationsEnabled() {
+        SharedPreferences prefs = getSharedPreferences(
+                NewsListActivity.class.getSimpleName(), MODE_PRIVATE);
+        return prefs.getBoolean("notifcations", true);
+    }
+
+    private boolean isWifiOnly() {
+        SharedPreferences prefs = getSharedPreferences(
+                NewsListActivity.class.getSimpleName(), MODE_PRIVATE);
+        return prefs.getBoolean("wifi_only", false);
+    }
+
+    private boolean isPeriodicUpdatesEnabled() {
+        SharedPreferences prefs = getSharedPreferences(
+                NewsListActivity.class.getSimpleName(), MODE_PRIVATE);
+        return prefs.getBoolean("periodic_update", true);
+    }
+
+    public boolean isWifiConnected() {
+        ConnectivityManager cm = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null
+                && netInfo.isConnectedOrConnecting()
+                && netInfo.getType() == ConnectivityManager.TYPE_WIFI;
     }
 }

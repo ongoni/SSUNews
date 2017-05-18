@@ -36,8 +36,9 @@ public class NewsListActivity extends Activity
 
     @Override
     public void onPreferenceClicked() {
+        PreferencesFragment f = new PreferencesFragment();
         getFragmentManager().beginTransaction()
-                .add(R.id.container, new PreferencesFragment())
+                .add(R.id.container, f)
                 .addToBackStack(null)
                 .commit();
     }
