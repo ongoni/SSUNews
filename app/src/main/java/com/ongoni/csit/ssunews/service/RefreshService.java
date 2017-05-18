@@ -39,7 +39,9 @@ public class RefreshService extends Service {
     private final Runnable refreshRunnable = new Runnable() {
         @Override
         public void run() {
-            loadData();
+            while (!Thread.interrupted()) {
+                loadData();
+            }
         }
     };
 
@@ -126,7 +128,7 @@ public class RefreshService extends Service {
             }
 
             try {
-                Thread.sleep(5_000);
+                Thread.sleep(3_000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

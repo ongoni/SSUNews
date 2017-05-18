@@ -113,8 +113,8 @@ public class NewsListFragment extends Fragment
 
     @Override
     public void onStop() {
-        super.onStop();
         getActivity().unregisterReceiver(refreshBroadcastReceiver);
+        super.onStop();
     }
 
     @Override
