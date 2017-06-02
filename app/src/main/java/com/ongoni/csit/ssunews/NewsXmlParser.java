@@ -68,10 +68,13 @@ public class NewsXmlParser {
                 article.link = readLink(parser);
             } else if (name.equals("guid")) {
                 article.guid = Long.parseLong(readGuid(parser));
+            } else if (name.equals("enclosure")) {
+                article.imageUrl = readImageUrl(parser);
             } else {
                 skip(parser);
             }
         }
+
         return article;
     }
 
@@ -116,6 +119,16 @@ public class NewsXmlParser {
         String guid = readText(parser);
         parser.require(XmlPullParser.END_TAG, namespaces, "guid");
         return guid;
+    }
+
+    private String readImageUrl(XmlPullParser parser) throws  XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, namespaces, "enclosure");
+        String url = parser.getAttributeValue(null, "url");
+        while (parser.getEventType() != XmlPullParser.END_TAG) {
+            parser.next();
+        }
+        parser.require(XmlPullParser.END_TAG, namespaces, "enclosure");
+        return url;
     }
 
     private String readText(XmlPullParser parser) throws XmlPullParserException, IOException {
